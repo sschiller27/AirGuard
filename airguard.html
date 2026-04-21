@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AirGuard — Smart Air Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080c10;
+    --surface: #0d1318;
+    --card: #111820;
+    --border: #1e2d3a;
+    --green: #00e5a0;
+    --green-dim: #00e5a020;
+    --red: #ff4757;
+    --blue: #38bfff;
+    --text: #e8f0f7;
+    --muted: #5a7a8a;
+    --accent: #00e5a0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(8,12,16,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--green); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #00e5a015 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-glow 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+    50% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--green-dim);
+    border: 1px solid #00e5a040;
+    border-radius: 100px;
+    padding: 0.4rem 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .badge-dot {
+    width: 7px; height: 7px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  .hero h1 {
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .hero h1 .highlight {
+    color: var(--green);
+    position: relative;
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    font-weight: 400;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 1rem;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background: var(--green);
+    color: #000;
+    padding: 0.9rem 2rem;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px #00e5a060;
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.9rem 2rem;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover { border-color: var(--green); color: var(--green); }
+
+  /* AIR MONITOR WIDGET */
+  .monitor-widget {
+    margin-top: 4rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    width: 340px;
+    animation: fadeUp 0.8s 0.4s ease both;
+    position: relative;
+    z-index: 2;
+  }
+
+  .monitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .status-live {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--green);
+  }
+
+  .monitor-readings {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .reading-card {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 0.9rem;
+  }
+
+  .reading-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+  }
+
+  .reading-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .reading-value.warn { color: var(--red); }
+
+  .monitor-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .monitor-bar-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    animation: fillBar 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes fillBar {
+    from { width: 22%; }
+    to { width: 68%; }
+  }
+
+  .monitor-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-body {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 580px;
+  }
+
+  /* HOW IT WORKS */
+  .how-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+
+  .how-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+
+  .how-card:hover {
+    border-color: #00e5a040;
+    transform: translateY(-4px);
+  }
+
+  .how-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .how-card:hover::before { opacity: 1; }
+
+  .how-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--green);
+    letter-spacing: 0.15em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  .how-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+  }
+
+  .how-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .how-icon {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  /* PARTS */
+  .parts-section { background: var(--surface); padding: 6rem 2rem; }
+  .parts-inner { max-width: 1100px; margin: 0 auto; }
+
+  .parts-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 3rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+  }
+
+  .parts-table th {
+    text-align: left;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.68rem;
+    padding: 0 1.2rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .parts-table td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .parts-table tr:last-child td { border-bottom: none; }
+
+  .parts-table tr:hover td { background: var(--card); }
+
+  .qty-badge {
+    display: inline-block;
+    background: var(--green-dim);
+    border: 1px solid #00e5a030;
+    color: var(--green);
+    padding: 0.1rem 0.6rem;
+    border-radius: 100px;
+    font-size: 0.72rem;
+  }
+
+  .part-purpose {
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+  }
+
+  /* BUILD STEPS */
+  .steps-list {
+    margin-top: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--green);
+    min-width: 50px;
+    padding-top: 0.2rem;
+    letter-spacing: 0.1em;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .step-desc {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* CHALLENGES */
+  .challenges-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .challenge-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.8rem;
+  }
+
+  .challenge-tag {
+    display: inline-block;
+    background: #ff475710;
+    border: 1px solid #ff475730;
+    color: var(--red);
+    padding: 0.2rem 0.7rem;
+    border-radius: 100px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+  }
+
+  .challenge-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .challenge-fix {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .challenge-fix strong { color: var(--green); font-weight: 600; }
+
+  /* PROTOTYPE */
+  .proto-box {
+    margin-top: 3rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+  }
+
+  .proto-badge {
+    display: inline-block;
+    background: #38bfff15;
+    border: 1px solid #38bfff30;
+    color: var(--blue);
+    padding: 0.3rem 1rem;
+    border-radius: 100px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+
+  .proto-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .proto-item {
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-align: center;
+  }
+
+  .proto-arrow {
+    font-size: 1.2rem;
+    color: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1.5rem;
+  }
+
+  .proto-real {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+  }
+
+  .proto-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4rem;
+  }
+
+  .proto-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+
+  .proto-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2rem;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  footer span { color: var(--green); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .how-grid, .challenges-grid, .proto-grid { grid-template-columns: 1fr; }
+    .proto-arrow { display: none; }
+    section { padding: 4rem 1.5rem; }
+    .monitor-widget { width: 100%; max-width: 340px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Air<span style="color:var(--text)">Guard</span></div>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#parts">Parts</a></li>
+    <li><a href="#build">Build Plan</a></li>
+    <li><a href="#challenges">Challenges</a></li>
+    <li><a href="#prototype">Prototype</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    Live Air Monitoring — Always On
+  </div>
+  <h1>Smart Air.<br><span class="highlight">Zero Effort.</span></h1>
+  <p class="hero-sub">AirGuard gives any existing air purifier an automatic brain — detecting harmful gases, smoke, and pollutants in real time, then acting on its own.</p>
+  <div class="hero-cta">
+    <a href="#how" class="btn-primary">See How It Works</a>
+    <a href="#parts" class="btn-ghost">View Parts List</a>
+  </div>
+
+  <!-- LIVE MONITOR WIDGET -->
+  <div class="monitor-widget">
+    <div class="monitor-header">
+      <span>AirGuard Live Feed</span>
+      <span class="status-live"><span class="badge-dot"></span> Active</span>
+    </div>
+    <div class="monitor-readings">
+      <div class="reading-card">
+        <div class="reading-label">Air Quality</div>
+        <div class="reading-value" id="aq-val">142</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-top:2px;">PPM</div>
+      </div>
+      <div class="reading-card">
+        <div class="reading-label">Humidity</div>
+        <div class="reading-value" id="hum-val">48%</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-top:2px;">RH</div>
+      </div>
+      <div class="reading-card">
+        <div class="reading-label">Temperature</div>
+        <div class="reading-value">71°F</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-top:2px;">DHT22</div>
+      </div>
+      <div class="reading-card">
+        <div class="reading-label">Purifier</div>
+        <div class="reading-value" id="purifier-status" style="font-size:1.1rem;">OFF</div>
+        <div style="font-family:'Space Mono',monospace;font-size:0.62rem;color:var(--muted);margin-top:2px;">Relay</div>
+      </div>
+    </div>
+    <div class="monitor-bar"><div class="monitor-bar-fill" id="bar-fill"></div></div>
+    <div class="monitor-status">
+      <span class="badge-dot"></span>
+      <span id="status-text">Air Quality: GOOD</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-label">System Overview</div>
+  <div class="section-title">How AirGuard<br>Thinks For You</div>
+  <p class="section-body">A plug-in smart module that mounts directly onto any existing purifier — no tools, no rewiring, no modifications. Just instant intelligence.</p>
+
+  <div class="how-grid">
+    <div class="how-card fade-in">
+      <span class="how-icon">🔬</span>
+      <div class="how-number">Step 01 — Sense</div>
+      <div class="how-title">Continuous Air Monitoring</div>
+      <div class="how-desc">The MQ-135 sensor continuously scans for harmful gases, smoke, VOCs, CO₂, and pollutants. Simultaneously, the DHT22 tracks humidity and temperature in real time.</div>
+    </div>
+    <div class="how-card fade-in">
+      <span class="how-icon">🧠</span>
+      <div class="how-number">Step 02 — Process</div>
+      <div class="how-title">Arduino Instant Processing</div>
+      <div class="how-desc">An Arduino Uno receives both sensor data streams and instantly compares them against safe threshold values, making a decision every few milliseconds.</div>
+    </div>
+    <div class="how-card fade-in">
+      <span class="how-icon">⚡</span>
+      <div class="how-number">Step 03 — Act</div>
+      <div class="how-title">Automatic Relay Trigger</div>
+      <div class="how-desc">When readings cross an unsafe threshold, the Arduino triggers a 5V relay module — automatically switching on your purifier without you lifting a finger.</div>
+    </div>
+    <div class="how-card fade-in">
+      <span class="how-icon">📺</span>
+      <div class="how-number">Step 04 — Display</div>
+      <div class="how-title">Live OLED Readouts</div>
+      <div class="how-desc">A 0.96" OLED screen displays live data from all sensors at all times. Color-coded LEDs give instant visual status: green for clean, red for poor air quality.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PARTS LIST -->
+<div class="parts-section" id="parts">
+  <div class="parts-inner">
+    <div class="section-label">Components</div>
+    <div class="section-title">What's Inside<br>AirGuard</div>
+    <table class="parts-table">
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Qty</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Arduino Uno</td>
+          <td><span class="qty-badge">×1</span></td>
+          <td class="part-purpose">The brain — reads sensor data and controls all outputs</td>
+        </tr>
+        <tr>
+          <td>MQ-135 Air Quality Sensor</td>
+          <td><span class="qty-badge">×1</span></td>
+          <td class="part-purpose">Detects harmful air particles, gases, VOCs, CO₂, and smoke</td>
+        </tr>
+        <tr>
+          <td>OLED Display (0.96" I2C)</td>
+          <td><span class="qty-badge">×1</span></td>
+          <td class="part-purpose">Shows live air quality readings at all times</td>
+        </tr>
+        <tr>
+          <td>5V Relay Module</td>
+          <td><span class="qty-badge">×1</span></td>
+          <td class="part-purpose">Switches the purifier on/off automatically</td>
+        </tr>
+        <tr>
+          <td>Red & Green LEDs</td>
+          <td><span class="qty-badge">×2</span></td>
+          <td class="part-purpose">Visual air quality status indicator</td>
+        </tr>
+        <tr>
+          <td>220Ω Resistors</td>
+          <td><span class="qty-badge">×2</span></td>
+          <td class="part-purpose">Protects LEDs from too much current</td>
+        </tr>
+        <tr>
+          <td>DHT22 Humidity Sensor</td>
+          <td><span class="qty-badge">×1</span></td>
+          <td class="part-purpose">Tracks real-time humidity and temperature</td>
+        </tr>
+        <tr>
+          <td>Jumper Wires</td>
+          <td><span class="qty-badge">~20</span></td>
+          <td class="part-purpose">Connects all components together</td>
+        </tr>
+        <tr>
+          <td>Breadboard</td>
+          <td><span class="qty-badge">×1</span></td>
+          <td class="part-purpose">Holds components for easy wiring</td>
+        </tr>
+        <tr>
+          <td>USB Cable + Power Supply</td>
+          <td><span class="qty-badge">×1</span></td>
+          <td class="part-purpose">Powers the Arduino Uno</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- BUILD PLAN -->
+<section id="build">
+  <div class="section-label">Construction</div>
+  <div class="section-title">Step-by-Step<br>Build Plan</div>
+  <div class="steps-list">
+    <div class="step fade-in">
+      <div class="step-num">01 /</div>
+      <div class="step-content">
+        <div class="step-title">Set Up Arduino IDE</div>
+        <div class="step-desc">Install the Arduino IDE on your computer and connect the Arduino Uno via USB. Verify the board is recognized under Tools → Board.</div>
+      </div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">02 /</div>
+      <div class="step-content">
+        <div class="step-title">Wire the MQ-135 Sensor</div>
+        <div class="step-desc">Connect the MQ-135 air quality sensor to the Arduino using analog pin A0. VCC to 5V, GND to GND, AOUT to A0.</div>
+      </div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">03 /</div>
+      <div class="step-content">
+        <div class="step-title">Connect the OLED Display</div>
+        <div class="step-desc">Wire the OLED via I2C: SDA to pin A4, SCL to pin A5. Power with 3.3V. Install the Adafruit SSD1306 and GFX libraries.</div>
+      </div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">04 /</div>
+      <div class="step-content">
+        <div class="step-title">Wire the LEDs with Resistors</div>
+        <div class="step-desc">Connect the green LED (with 220Ω resistor) to digital pin 8, and the red LED (with 220Ω resistor) to digital pin 9. GND to common ground.</div>
+      </div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">05 /</div>
+      <div class="step-content">
+        <div class="step-title">Connect the Relay Module</div>
+        <div class="step-desc">Wire the relay control pin to digital pin 7. Then connect the purifier's power through the relay's COM and NO terminals — have an adult help with AC wiring.</div>
+      </div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">06 /</div>
+      <div class="step-content">
+        <div class="step-title">Upload the Code</div>
+        <div class="step-desc">Write code that reads sensor data, displays it on the OLED, controls the LEDs, and triggers the relay when readings exceed your threshold. Upload to Arduino.</div>
+      </div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">07 /</div>
+      <div class="step-content">
+        <div class="step-title">Test & Calibrate</div>
+        <div class="step-desc">Test with clean air first, then simulate poor air near a candle or strong scent. Verify the relay triggers. Adjust the threshold value in code based on your readings.</div>
+      </div>
+    </div>
+    <div class="step fade-in">
+      <div class="step-num">08 /</div>
+      <div class="step-content">
+        <div class="step-title">Mount in Enclosure</div>
+        <div class="step-desc">Once everything works, mount all components in a clean white enclosure that attaches to the side of the purifier — no modifications to the purifier itself.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CHALLENGES -->
+<section id="challenges">
+  <div class="section-label">Known Issues</div>
+  <div class="section-title">Challenges &<br>Solutions</div>
+  <div class="challenges-grid">
+    <div class="challenge-card fade-in">
+      <div class="challenge-tag">⏱ Warm-Up</div>
+      <div class="challenge-title">MQ-135 Needs ~60s Warm-Up</div>
+      <div class="challenge-fix">The sensor requires time to stabilize before giving accurate readings. <strong>Fix:</strong> Add a startup delay and a "warming up" message on the OLED in your code.</div>
+    </div>
+    <div class="challenge-card fade-in">
+      <div class="challenge-tag">⚡ Interference</div>
+      <div class="challenge-title">Relay Electrical Noise</div>
+      <div class="challenge-fix">The relay can cause electrical interference with sensor wires. <strong>Fix:</strong> Route relay wiring away from sensor wires and use a flyback diode if needed.</div>
+    </div>
+    <div class="challenge-card fade-in">
+      <div class="challenge-tag">📡 I2C</div>
+      <div class="challenge-title">OLED Not Displaying</div>
+      <div class="challenge-fix">I2C address mismatch is the most common culprit. <strong>Fix:</strong> Run an I2C scanner sketch — most OLEDs use address 0x3C, but some use 0x3D.</div>
+    </div>
+    <div class="challenge-card fade-in">
+      <div class="challenge-tag">⚠️ Safety</div>
+      <div class="challenge-title">AC Power Wiring</div>
+      <div class="challenge-fix">The purifier runs on AC power through the relay. <strong>Fix:</strong> Always have an adult assist with the AC wiring portion. Never handle live wires alone.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROTOTYPE PLAN -->
+<section id="prototype">
+  <div class="section-label">TinkerCAD Prototype</div>
+  <div class="section-title">Build It First<br>with Basic Parts</div>
+  <p class="section-body">Before the real components arrive, prototype the circuit in TinkerCAD using stand-in parts. Each real component maps to a basic substitute.</p>
+
+  <div class="proto-box fade-in">
+    <div class="proto-badge">🔵 Tinkercad Prototype Substitutions</div>
+    <p style="font-size:0.9rem;color:var(--muted);line-height:1.7;">Use these swaps to build and test your logic in TinkerCAD right now — then swap in real parts when they arrive.</p>
+
+    <div class="proto-grid">
+      <div class="proto-item">
+        <div class="proto-real">Real Part</div>
+        <div class="proto-name">MQ-135 Gas Sensor</div>
+        <div class="proto-desc">Analog air quality sensor</div>
+        <div style="margin:0.8rem 0;color:var(--border)">↓</div>
+        <div class="proto-sub">Prototype Swap</div>
+        <div class="proto-name" style="color:var(--blue)">Light Sensor (LDR)</div>
+        <div class="proto-desc">Any analog input works the same way</div>
+      </div>
+      <div class="proto-item">
+        <div class="proto-real">Real Part</div>
+        <div class="proto-name">5V Relay Module</div>
+        <div class="proto-desc">Switches purifier on/off</div>
+        <div style="margin:0.8rem 0;color:var(--border)">↓</div>
+        <div class="proto-sub">Prototype Swap</div>
+        <div class="proto-name" style="color:var(--blue)">LED (Output)</div>
+        <div class="proto-desc">Lights up when relay would trigger</div>
+      </div>
+      <div class="proto-item">
+        <div class="proto-real">Real Part</div>
+        <div class="proto-name">DHT22 Sensor</div>
+        <div class="proto-desc">Humidity & temperature</div>
+        <div style="margin:0.8rem 0;color:var(--border)">↓</div>
+        <div class="proto-sub">Prototype Swap</div>
+        <div class="proto-name" style="color:var(--blue)">Push Button</div>
+        <div class="proto-desc">Simulates a sensor trigger event</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem;padding:1.5rem;background:var(--surface);border-radius:10px;border-left:3px solid var(--green)">
+      <div style="font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.7rem">AI Prompt for TinkerCAD</div>
+      <div style="font-size:0.88rem;color:var(--muted);line-height:1.8;font-style:italic">"Help me create a simple prototype circuit for my project. I want to use basic components first before the real parts arrive. Please walk me through the wiring and coding one step at a time. Use an LED to represent my output and a light sensor to represent my analog sensor. Explain each connection clearly and wait between steps."</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div style="margin-bottom:0.5rem;font-size:1rem;color:var(--text);font-family:'Syne',sans-serif;font-weight:700;">AirGuard</div>
+  Built by <span>Shayna</span> · Smart Air Purifier Automation Project · SAR High School
+</footer>
+
+<script>
+  // Scroll fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Simulated live sensor readings
+  function randomBetween(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+
+  function updateReadings() {
+    const aqVal = document.getElementById('aq-val');
+    const humVal = document.getElementById('hum-val');
+    const purifier = document.getElementById('purifier-status');
+    const statusText = document.getElementById('status-text');
+    const barFill = document.getElementById('bar-fill');
+
+    const aq = randomBetween(80, 380);
+    const hum = randomBetween(40, 65);
+    const threshold = 300;
+
+    aqVal.textContent = aq;
+    humVal.textContent = hum + '%';
+
+    const pct = Math.min(100, (aq / 400) * 100);
+    barFill.style.width = pct + '%';
+    barFill.style.animation = 'none';
+
+    if (aq > threshold) {
+      aqVal.className = 'reading-value warn';
+      barFill.style.background = '#ff4757';
+      purifier.textContent = 'ON';
+      purifier.style.color = 'var(--green)';
+      statusText.textContent = 'Air Quality: POOR — Purifier Active';
+      statusText.style.color = 'var(--red)';
+    } else {
+      aqVal.className = 'reading-value';
+      barFill.style.background = 'var(--green)';
+      purifier.textContent = 'OFF';
+      purifier.style.color = 'var(--muted)';
+      statusText.textContent = 'Air Quality: GOOD';
+      statusText.style.color = 'var(--green)';
+    }
+  }
+
+  setInterval(updateReadings, 2500);
+  updateReadings();
+</script>
+</body>
+</html>
